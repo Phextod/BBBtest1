@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="nddsjava">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/nddsjava.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
