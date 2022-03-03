@@ -1,6 +1,6 @@
 package my.beaglebone.test;
 
-import java.io.*;
+import my.beaglebone.pins.GPIO;
 
 public class Main {
 
@@ -12,12 +12,14 @@ public class Main {
         /*HelloWorldPublisher publisher = new HelloWorldPublisher();
         publisher.publisherMain(0, 10);*/
 
-        LinuxGPIO p = new LinuxGPIO(23, LinuxGPIO.Direction.OUT);
+        GPIO p = new GPIO(23, GPIO.Direction.OUT);
         for (int i = 0; i < 5; i++) {
             p.Write(1);
             Thread.sleep(1000);
             p.Write(0);
             Thread.sleep(1000);
         }
+
+
     }
 }

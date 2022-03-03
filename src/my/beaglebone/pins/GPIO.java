@@ -1,9 +1,9 @@
-package my.beaglebone.test;
+package my.beaglebone.pins;
 
 import java.io.*;
 import java.lang.*;
 
-public class LinuxGPIO {
+public class GPIO {
     public enum Direction {IN, OUT, HIGH, LOW}
     private static final String EXPORT = "/sys/class/gpio/export";
     private static final String UNEXPORT = "/sys/class/gpio/unexport";
@@ -12,7 +12,7 @@ public class LinuxGPIO {
     private final int pinNumber_;
     private Direction direction_;
 
-    public LinuxGPIO(int pinNumber, Direction direction) throws Exception {
+    public GPIO(int pinNumber, Direction direction) throws Exception {
         pinNumber_ = pinNumber;
         direction_ = direction;
 
