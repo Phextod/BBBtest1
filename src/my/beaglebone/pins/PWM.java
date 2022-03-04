@@ -1,29 +1,27 @@
 package my.beaglebone.pins;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import static my.beaglebone.test.Main.executeCommand;
+import static my.beaglebone.Main.executeCommand;
 
+//PWM pins can only output, for reading use ANALOG
 public class PWM {
     private static final HashMap<String, String> pinCodesToDirNames = new HashMap<>();
 
     static {
         pinCodesToDirNames.put("p9.14", "pwm-4:0");
         pinCodesToDirNames.put("p9.16", "pwm-3:0");//doesn't work
-        pinCodesToDirNames.put("p9.21", "pwm-1:1");//max current around 1.33
-        pinCodesToDirNames.put("p9.22", "pwm-1:0");//max current around 1.33
+        pinCodesToDirNames.put("p9.21", "pwm-1:1");//max current 1.33v
+        pinCodesToDirNames.put("p9.22", "pwm-1:0");//max current 1.33v
         pinCodesToDirNames.put("p9.42", "pwm-0:0");
         pinCodesToDirNames.put("p8.13", "pwm-7:1");
         pinCodesToDirNames.put("p8.19", "pwm-7:0");
     }
 
-    private final static String BASEDIR="/sys/class/pwm/%s";
     private final static String ENABLE="/sys/class/pwm/%s/enable";
     private final static String PERIOD="/sys/class/pwm/%s/period";
-    private final static String DUTYCYCLE="/sys/class/pwm/%s/duty_cycle";
+    private final static String DUTY_CYCLE ="/sys/class/pwm/%s/duty_cycle";
 
     private final String dirName;
 
@@ -63,7 +61,7 @@ public class PWM {
             return false;
         }
 
-        File dutyCycleFile = new File(String.format(DUTYCYCLE, dirName));
+        File dutyCycleFile = new File(String.format(DUTY_CYCLE, dirName));
         PrintStream dutyCycleFileStream = new PrintStream(dutyCycleFile);
         dutyCycleFileStream.print(dutyCycle);
         dutyCycleFileStream.close();
@@ -82,12 +80,12 @@ public class PWM {
         String periodS = "0";
         try {
             FileReader periodFileReader = new FileReader(String.format(PERIOD, dirName));
-            BufferedReader periodFileStream = new BufferedReader(periodFileReader);
-            periodS = periodFileStream.readLine();
-            periodFileStream.close();
+            BufferedReader periodBufferedReader = new BufferedReader(periodFileReader);
+            periodS = periodBufferedReader.readLine();
+            periodBufferedReader.close();
             periodFileReader.close();
-        } catch (Exception e) {//todo separate exceptions
-            System.err.println("Error accessing period file");
+        } catch (Exception e) {//should separate exceptions
+            System.err.println("Error while getting period");
         }
         return Long.parseLong(periodS);
     }
@@ -95,15 +93,29 @@ public class PWM {
     public long getDutyCycle() {
         String dutyCycleS = "0";
         try {
-            FileReader dutyCycleFileReader = new FileReader(String.format(DUTYCYCLE, dirName));
-            BufferedReader dutyCycleFileStream = new BufferedReader(dutyCycleFileReader);
-            dutyCycleS = dutyCycleFileStream.readLine();
-            dutyCycleFileStream.close();
+            FileReader dutyCycleFileReader = new FileReader(String.format(DUTY_CYCLE, dirName));
+            BufferedReader dutyCycleBufferedReader = new BufferedReader(dutyCycleFileReader);
+            dutyCycleS = dutyCycleBufferedReader.readLine();
+            dutyCycleBufferedReader.close();
             dutyCycleFileReader.close();
         }
-        catch (Exception e){//todo separate exceptions
-            System.err.println("Error accessing duty_cycle file");
+        catch (Exception e){//should separate exceptions
+            System.err.println("Error while getting duty cycle");
         }
         return Long.parseLong(dutyCycleS);
+    }
+
+    public boolean isEnabled() {
+        String enabledS = "0";
+        try {
+            FileReader enableFileReader = new FileReader(String.format(ENABLE, dirName));
+            BufferedReader enableBufferedReader = new BufferedReader(enableFileReader);
+            enabledS = enableBufferedReader.readLine();
+            enableBufferedReader.close();
+            enableFileReader.close();
+        } catch (IOException e) {//should separate exceptions
+            System.err.println("Error while getting enabled state");
+        }
+        return enabledS.equals("1");
     }
 }

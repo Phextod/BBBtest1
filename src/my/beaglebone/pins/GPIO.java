@@ -3,7 +3,7 @@ package my.beaglebone.pins;
 import java.io.*;
 import java.lang.*;
 
-import static my.beaglebone.test.Main.executeCommand;
+import static my.beaglebone.Main.executeCommand;
 
 public class GPIO {
     public enum Direction {IN, OUT, HIGH, LOW}

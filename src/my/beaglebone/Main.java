@@ -1,4 +1,4 @@
-package my.beaglebone.test;
+package my.beaglebone;
 
 import my.beaglebone.pins.PWM;
 
