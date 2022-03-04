@@ -3,6 +3,8 @@ package my.beaglebone.pins;
 import java.io.*;
 import java.lang.*;
 
+import static my.beaglebone.test.Main.executeCommand;
+
 public class GPIO {
     public enum Direction {IN, OUT, HIGH, LOW}
     private static final String EXPORT = "/sys/class/gpio/export";
@@ -65,19 +67,6 @@ public class GPIO {
         }
         direction_ = Direction.IN;
         return direction_;
-    }
-
-    public static boolean executeCommand(String command) {
-
-        // Try running the command.
-        try {
-            Process proc = Runtime.getRuntime().exec(command);
-            proc.waitFor();
-        }
-        catch(Exception e) {
-            return false;
-        }
-        return true;
     }
 }
 
