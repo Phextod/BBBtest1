@@ -10,13 +10,23 @@ public class PWM {
     private static final HashMap<String, String> pinCodesToDirNames = new HashMap<>();
 
     static {
-        pinCodesToDirNames.put("p9.14", "pwm-4:0");
-        pinCodesToDirNames.put("p9.16", "pwm-3:0");//doesn't work
-        pinCodesToDirNames.put("p9.21", "pwm-1:1");//max current 1.33v
-        pinCodesToDirNames.put("p9.22", "pwm-1:0");//max current 1.33v
-        pinCodesToDirNames.put("p9.42", "pwm-0:0");
-        pinCodesToDirNames.put("p8.13", "pwm-7:1");
-        pinCodesToDirNames.put("p8.19", "pwm-7:0");
+        final String fileName = "classes/PWM.txt";
+        String line;
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(":", 2);
+                if (parts.length >= 2 && parts[0].charAt(0) != '#') {
+                    String key = parts[0];
+                    String value = parts[1];
+                    pinCodesToDirNames.put(key, value);
+                }
+            }
+        } catch (FileNotFoundException e){
+            System.err.printf("Can't init PWM class(%s file not found)%n", fileName);
+        } catch (IOException e){
+            System.err.printf("Can't init PWM class(can't read %s file)%n", fileName);
+        }
     }
 
     private final static String ENABLE="/sys/class/pwm/%s/enable";
@@ -27,7 +37,7 @@ public class PWM {
 
 
     public PWM(String pinCode, long period, long dutyCycle) throws FileNotFoundException {
-        this.dirName = pinCodesToDirNames.get(pinCode);
+        dirName = pinCodesToDirNames.get(pinCode);
         if(this.dirName == null) {
             System.err.printf("%s pin does not have pwm mode%n", pinCode);
             return;
