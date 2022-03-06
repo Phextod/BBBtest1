@@ -1,3 +1,0 @@
-struct HelloWorld {
-    string str;
-};
