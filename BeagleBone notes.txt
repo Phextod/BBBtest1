@@ -1,0 +1,80 @@
+"df -h"
+Kommunikáció:
+USB-vel windows-os pc-hez csatlakozni
+-driver nem kellett(bár nem is fut a telepítõ)
+Böngészõbe(firefox vagy chrome) 192.168.7.2 a beaglebone(vannak tutorialok meg pár programozási felület)
+-a beagleboard.org/getting-started oldalon majdnem minden ugyanúgy elérhetõ
+SSH-val 192.168.7.2 (user:debian, pw:temppwd)
+
+
+Java:
+https://beagleboard.org/p/blog-hangerhead-com/oracle-jdk-3160a6
+jdk letöltés(jdk-8u321-linux-arm32-vfp-hflt.tar.gz)
+V1: letöltött fájl másolása WinSCP-vel (kicsomagolásnál nem volt elég hely a BeagleBone-on)
+v2: pc-n kicsomagolni, és úgy másolni (így sincs elég hely)
+v3(újratelepítés után): másolás kicsomagolás
+környezeti változók hozzáadása:
+	v1:"editor ~/.profile" fájl végére:(/home/debian.profile)
+		"export PATH=$PATH:/home/debian/bin/jdk1.8.0_321/bin
+		export JAVA_HOME=/home/debian/bin/jdk1.8.0_321"
+	v2:/etc/profile VÉGÉRE!:
+	 "export PATH=$PATH:/home/debian/bin/jdk1.8.0_321/bin
+		export JAVA_HOME=/home/debian/bin/jdk1.8.0_321"
+	sudo reboot után teszt:
+		"java -version"
+GPIO:github.com/eitch/ch.eitchnet.beaglebone
+
+
+C++:
+https://www.youtube.com/watch?v=af-1hDfoRcg
+error1:Missing tools: gdb zip
+	etc/apt/sources.list-be kikommentezett források engedélyezése
+	sudo apt-get install gdb
+	sudo apt-get install zip
+error2:VisualStudio nem másolja át a fájlokat(és aztán nem is találja meg amikor futtatná)
+	a platform legyen ARM
+error3:Stopped due to shared library event (no libraries added or removed)
+
+Wifi:(industrial-on nincs wifi, majd külsõ egységgel kell megoldani)
+https://beagleboard.org/static/librobotcontrol/networking_wifi.html
+"Method "Connect" with signature "" on interface "net.connman.Service" doesn't exist" -> megoldás:agent on
+
+
+Újratelepítés:
+balenaEtcher-el egy sd kártyára rátettem a legfrisseb image-et
+elinux.org/Beagleboard:BeagleBoneBlack_Debian#Flashing_eMMC alapján átírtam a uEnv.txt utolsó sorát
+"sudo reboot" után elkezdett flashelni(ledfények oda vissza futása)
+
+
+IntelliJ:
+lifeliteracy.medium.com/setup-intellij-idea-for-remote-debugging-java-code-on-a-raspberry-pi-6e9df09dfb95(csak a 3.5. pot)
+error1: time stamp is in the future -> internethez csatlakozással automatikusan lekérdezi az idõt
+error2: sudo: no tty present and no askpass program specified -> 
+	solution1: Run/debug configuration-be ne legyen sudo
+	(solution2: "sudo visudo" "%sudo ALL=(ALL) ALL" lecserélni "%sudo ALL=(ALL) NOPASSWD: ALL")
+	solutionX: "sudo visudo" VÉGÉRE! "debian ALL=(ALL) NOPASSWD:ALL"
+
+
+DDS:
+community.rti.com/static/documentation/connext-dds/6.0.1/doc/manuals/connext_dds/RTI_ConnextDDS_CoreLibraries_PlatformNotes.pdf
+armv6vfphLinux3.xgcc4.7.2(fórum szerint BeagleBone-on ez már futott)
+error1:no nddsjava in java.library.path
+	IntelliJ: file>project structure>global libraries>add és betallózni a natív könyvtárakat tartalmazó mappát
+error2:Could not find or load main class Filesrti_connext_dds-6.0.1libarmv6vfphLinux3.xgcc4.7.2
+error1 megoldás2:UnsatisfiedLinkError-ra breakpont alapján kiderül hogy /home/debian/bin/jdk1.8.0_321/jre/lib/arm-be keresi a könyvtárat. Tehát ide bemásolva meg fogja találni.(libnddsjava.so, libnddsc.so)
+	error:libnddsc.so-t így sem találja
+Végsõ megoldás!:/etc/ld.so.conf-ba beírni a .so fájlokat tartalmazó mappát (nálam/home/debian/bin/lib/armv6vfphLinux3.xgcc4.7.2), aztán "sudo /sbin/ldconfig -v". Ha a megjelenített listában szerepel az elõbb beillesztett könyvtár(és a benne levõ fájlok) akkor meg van oldva.
+
+
+GPIO:"config-pin"( -l lehetséges módok, -q jelenlegi mód, -c konfigurálás fájlból)
+LED example: derekmolloy.ie/beaglebone-controlling-the-on-board-leds-using-java/(az "&gt;" az greater than-t jelent ezért beírásnál ">" -t kell használni)
+github.com/alamorobotics/BeagleBoneBlack-Java-GPIO ezt a könyvtárat bemásoltam a projekt mappába
+IntelliJ-be file>new>module from existing source bettalózni a bemásolt könyvtárat(vannak benne example-ök)
+error1:Can't find Slots. nem tudja megnyitni a /sys/devices/bine_capemgr.9/slots-ot(mert nincs ilyen)
+
+PWM:
+config-pin <pinNumber> pwm
+/sys/class/pwm/pwm-x:x/-be belépve (az hogy melyik kimenet melyik fájlal vezérelhetõ a pwm.txt-ben van)
+echo <period> > period
+echo <dutyCícle> > duty_cycle
+echo 1 > enable
